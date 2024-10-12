@@ -7,6 +7,7 @@ import {
   M2TextureTransform,
   M2TextureWeight,
   M2Track,
+  M2Camera,
 } from '@wowserhq/format';
 
 type ModelBounds = {
@@ -79,6 +80,7 @@ type ModelSpec = {
   textureWeights: M2TextureWeight[];
   textureTransforms: M2TextureTransform[];
   materialColors: M2Color[];
+  cameras: M2Camera[];
 };
 
 export { ModelBounds, ModelSpec, BoneSpec, MaterialSpec, TextureSpec, SequenceSpec };

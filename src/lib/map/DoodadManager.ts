@@ -153,9 +153,9 @@ class DoodadManager {
 
     const areaBounds = new THREE.Sphere();
 
-    const doodadModels = await Promise.all(
+    const doodadModels = (await Promise.all(
       doodadDefs.map((doodadDef) => this.#modelManager.get(doodadDef.name)),
-    );
+    )).map(({model}) => model);
 
     for (let i = 0; i < doodadDefs.length; i++) {
       const model = doodadModels[i];

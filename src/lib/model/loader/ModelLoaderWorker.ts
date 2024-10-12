@@ -35,6 +35,7 @@ class ModelLoaderWorker extends SceneWorker {
     const textureWeights = model.textureWeights;
     const textureTransforms = model.textureTransforms;
     const materialColors = model.colors;
+    const cameras = model.cameras.map((c) => c.toObject());
 
     // Expand geometry bounds by sequence bounds to produce model bounds
     const extent = geometry.bounds.extent.slice(0);
@@ -57,6 +58,7 @@ class ModelLoaderWorker extends SceneWorker {
       textureWeights,
       textureTransforms,
       materialColors,
+      cameras,
     };
 
     const transfer = [spec.geometry.vertexBuffer, spec.geometry.indexBuffer, ...boneBuffers];

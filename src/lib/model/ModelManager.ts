@@ -10,6 +10,7 @@ import ModelLoader from './loader/ModelLoader.js';
 import { MaterialSpec, ModelSpec, TextureSpec } from './loader/types.js';
 import SceneLight from '../light/SceneLight.js';
 import ModelAnimator from './ModelAnimator.js';
+import { DEFAULT_UP } from './util.js';
 
 type ModelResources = {
   name: string;
@@ -17,6 +18,7 @@ type ModelResources = {
   materials: MaterialSpec[];
   animator: ModelAnimator;
   skinned: boolean;
+  cameras: THREE.PerspectiveCamera[];
 };
 
 type ModelManagerOptions = {
@@ -45,7 +47,13 @@ class ModelManager {
 
   async get(path: string) {
     const resources = await this.#getResources(path);
-    return this.#createModel(resources);
+    const [model] = await Promise.all([
+      this.#createModel(resources),
+    ]);
+    return {
+      model,
+      cameras: resources.cameras,
+    }
   }
 
   update(deltaTime: number, camera: THREE.Camera) {
@@ -77,9 +85,9 @@ class ModelManager {
 
   async #loadResources(refId: string, path: string) {
     const spec = await this.#loader.loadSpec(path);
-
     const animator = this.#createAnimator(spec);
     const geometry = this.#createGeometry(spec);
+    const cameras = this.#createCameras(spec);
 
     const resources: ModelResources = {
       name: spec.name,
@@ -87,6 +95,7 @@ class ModelManager {
       materials: spec.materials,
       animator,
       skinned: spec.skinned,
+      cameras: cameras,
     };
 
     this.#loaded.set(refId, resources);
@@ -296,6 +305,27 @@ class ModelManager {
     }
 
     return animator;
+  }
+
+  #createCameras(spec: ModelSpec): THREE.PerspectiveCamera[] {
+    const ASPECT_RATIO = 1;
+    return spec.cameras.map((cameraSpec) => {
+      const camera = new THREE.PerspectiveCamera(
+        (cameraSpec.fieldOfView / Math.sqrt(1.0 + Math.pow(ASPECT_RATIO, 2.0)) * 57.2958),
+        ASPECT_RATIO,
+        cameraSpec.nearClip,
+        cameraSpec.farClip,
+      );
+      camera.userData.fov = cameraSpec.fieldOfView;
+      camera.up = DEFAULT_UP;
+
+      const [x, y, z] = cameraSpec.positionBase;
+      camera.position.set(x, y, z);
+
+      const [targetX, targetY, targetZ] = cameraSpec.targetBase;
+      camera.lookAt(targetX, targetY, targetZ);
+      return camera;
+    });
   }
 }
 

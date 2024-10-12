@@ -15,4 +15,6 @@ const getTrackInterpolation = (trackType: number): THREE.InterpolationModes => {
   }
 };
 
-export { getTrackInterpolation };
+const DEFAULT_UP = new THREE.Vector3(0, 0, 1);
+
+export { getTrackInterpolation, DEFAULT_UP };
